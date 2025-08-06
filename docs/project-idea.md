@@ -92,7 +92,7 @@ Implementation in Python.
 4. **As a DevOps engineer**, I want to deploy using Docker so I can ensure consistent environments
 5. **As a system administrator**, I want to deploy to Kubernetes so I can handle production workloads with scaling capabilities
 
-## Architecture Options Summary
+## Architecture Options and technical specifications
 
 ### Architecture Option 1: Local and using stdio MCP and inprocess agents
 **Philosophy**: Simplicity and rapid development
@@ -100,6 +100,7 @@ Implementation in Python.
 - stdio-based MCP transport (JSON-RPC 2.0 over stdin/stdout)
 - MCP server providing document access as resources and tools
 - Semantic Kernel agents as MCP clients when integrating with the orchestrator
+- **LLM Integration**: Agents can use either internal linked LLM models (e.g., Azure AI Foundry GPT-4o with Azure credentials) or delegate to client's LLM via MCP "sampling" specification for Model Sampling Delegation
 - File-based configuration
 - Ideal for development, testing, and proof-of-concept scenarios
 
@@ -109,6 +110,7 @@ Implementation in Python.
 - HTTP+SSE transport for MCP communication (HTTP requests + Server-Sent Events)
 - MCP servers as containerized services exposing tools and resources
 - Remote agent execution in separate containers acting as MCP clients and MCP servers, depending who is cosuming what.
+- **LLM Integration**: Agents can use either internal linked LLM models (e.g., Azure AI Foundry GPT-4o with Azure credentials) or delegate to client's LLM via MCP "sampling" specification for Model Sampling Delegation
 - Docker Compose orchestration
 - Suitable for medium-scale deployments and staging environments
 
@@ -118,6 +120,7 @@ Implementation in Python.
 - HTTP+SSE MCP transport with service discovery
 - MCP servers as Kubernetes services with tools and resources
 - Agents as scalable pods acting as MCP clients
+- **LLM Integration**: Agents can use either internal linked LLM models (e.g., Azure AI Foundry GPT-4o with Azure credentials) or delegate to client's LLM via MCP "sampling" specification for Model Sampling Delegation
 - ConfigMaps and Secrets management
 - Production-ready with monitoring and logging integration
 
@@ -203,6 +206,8 @@ External → Ingress → Content Source MCP Services ←→ Agent Services (via 
   - *Mitigation*: Use well-tested MCP libraries and maintain version compatibility matrix
 - **Semantic Kernel API Changes**: Rapid evolution of Semantic Kernel may break existing implementations
   - *Mitigation*: Pin to stable versions and maintain upgrade path documentation
+- **MCP Sampling Implementation**: Risk that MCP sampling specification may not be fully implemented or supported in .NET and Python MCP SDKs, with version compatibility issues between MCP SDK versions
+  - *Mitigation*: Validate MCP sampling support in official SDKs during discovery phase; ensure SDK versions are compatible with MCP sampling (C# SDK 2025-06-18+ and Python SDK latest); implement fallback to internal LLM models if sampling is unavailable; test both stdio and HTTP+SSE transport mechanisms for sampling compatibility
 
 **Medium Priority:**
 - **MCP Transport Reliability**: stdio and HTTP+SSE transport failures in different deployment scenarios
@@ -221,43 +226,29 @@ External → Ingress → Content Source MCP Services ←→ Agent Services (via 
 ## Next Steps
 
 ### Discovery Phase
-1. **Technology Stack Validation** (Week 1-2)
+1. **Technology Stack Validation** 
    - Verify latest MCP protocol implementations for .NET and Python
    - Test Semantic Kernel integration capabilities
-   - Validate container base images and Kubernetes compatibility
 
-2. **Architecture Proof of Concept** (Week 3-4)
+2. **Architecture Proof of Concept** 
    - Implement minimal Option 1 (local) version
-   - Validate MCP server and agent communication
-   - Test basic document processing workflow
+   - Validate MCP server and agent communication thorugh MCP
+   - Test basic document processing workflow, initially with only Agent Summarizer in C#.
 
-3. **Development Planning** (Week 5)
-   - Define detailed development sprints
-   - Establish coding standards and project structure
-   - Set up development environment and CI/CD pipeline
 
 ### Deliverables for Next Phase
 1. **Working Option 1 Implementation**
    - Functional MCP server with local file and URL support
-   - Two working agents (summarization and analysis)
+   - Orchestrator Agent and summarization agent.
    - Basic workflow orchestration
    - Unit tests and integration tests
 
 2. **Technical Documentation**
-   - API specifications for MCP server
-   - Agent interface definitions
    - Deployment and setup guides
    - Architecture decision records (ADRs)
 
 3. **Development Infrastructure**
    - Project structure and coding standards
-   - CI/CD pipeline for automated testing
-   - Development environment setup scripts
-
-4. **Option 2 & 3 Design Documents**
-   - Detailed containerization strategy
-   - Kubernetes deployment specifications
-   - Migration path from Option 1 to Options 2 and 3
 
 ## Contact Information
 **Project Owner**: CESARDELATORRE  
