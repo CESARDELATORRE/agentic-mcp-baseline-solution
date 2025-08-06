@@ -30,7 +30,7 @@ Provide developers and organizations with a ready-to-use, modular, and extensibl
 ## Initial Requirements
 
 ### Functional Requirements
-1. **Model Context Protocol (MCP) Server**
+1. **Content source as Model Context Protocol (MCP) server**
    - Custom MCP server providing document/content access to AI agents
    - Support for local text files and remote URL content retrieval
    - Expose content as MCP resources and tools
@@ -38,8 +38,8 @@ Provide developers and organizations with a ready-to-use, modular, and extensibl
 
 2. **AI Agent Workflow**
    - Orchestrator Agent: Coordinates workflow and manages MCP client connections
-   - Summarization Agent: Processes documents using Semantic Kernel via MCP tools
-   - Analysis Agent: Generates taglines/mottos from summaries via MCP communication
+   - Summarizer Agent: Processes documents using Semantic Kernel via MCP tools
+   - Tagline-Creator Agent: Generates taglines/mottos from summaries via MCP communication
    - Sequential workflow execution with result passing through MCP protocol
 
 3. **Content Sources as MCP Resources**
@@ -54,9 +54,9 @@ Provide developers and organizations with a ready-to-use, modular, and extensibl
 
 ### Non-Functional Requirements
 1. **Deployment Flexibility**
-   - Local machine execution
-   - Docker container deployment
-   - Kubernetes cluster deployment
+   - Option 1. Local machine execution
+   - Option 2. Docker container deployment
+   - Option 3. Kubernetes cluster deployment
 
 2. **Documentation and Examples**
    - Comprehensive setup and usage documentation
@@ -70,16 +70,20 @@ Provide developers and organizations with a ready-to-use, modular, and extensibl
 
 ## Functional Specifications
 
-### MCP Server Capabilities
+### Content source: MCP Server Capabilities
 - **Document Provider Service**: Custom MCP server exposing document content as resources and tools through the Model Context Protocol
 - **Content Source Management**: Handles local file access and remote URL content fetching, exposing them as MCP resources
-- **Tool Interface**: Provides MCP tools for document processing operations (summarization, analysis)
+- **Tool Interface**: Provides MCP tools for document processing operations to be performed by decoupled agents.
 - **Resource Management**: Exposes document content through MCP resource URIs with proper content negotiation
 
 ### Agent Specifications
-- **Orchestrator Agent** (C#): Acts as MCP client, coordinates workflow execution, manages connections to MCP servers
-- **Summarization Agent** (C#): Uses Semantic Kernel to generate summaries, can be integrated within orchestrator or as separate MCP server
-- **Analysis Agent** (C#/Python): Analyzes summaries to create taglines/mottos, can be implemented as separate MCP server or integrated component
+- **Orchestrator Agent** (C#): Acts as MCP client, coordinates workflow execution, manages connections to MCP servers. It should use Semantic Kernel for that orchestration.
+Implementation in .NET/C#.
+- **Summarization Agent** (C#): Generates a summary from the content provided as part of the prompt. The integration with the orchestrator is always thorugh MCP, but in option 1 is stdio and in Options 2 and 3 as remote agent using Http.
+Implementation in .NET/C#.
+- **Analysis Agent** (Python): Analyzes summaries coming from the summarization Agent to create taglines/mottos.
+The integration with the orchestrator is always thorugh MCP, but in option 1 is stdio and in Options 2 and 3 as remote agent using Http.
+Implementation in Python.
 
 ### User Stories (Baseline)
 1. **As a developer**, I want to deploy the MCP server locally so I can test agent workflows quickly
@@ -95,7 +99,7 @@ Provide developers and organizations with a ready-to-use, modular, and extensibl
 - All components run on single machine
 - stdio-based MCP transport (JSON-RPC 2.0 over stdin/stdout)
 - MCP server providing document access as resources and tools
-- Semantic Kernel agents as MCP clients or integrated within orchestrator
+- Semantic Kernel agents as MCP clients when integrating with the orchestrator
 - File-based configuration
 - Ideal for development, testing, and proof-of-concept scenarios
 
@@ -104,7 +108,7 @@ Provide developers and organizations with a ready-to-use, modular, and extensibl
 - Docker containers for each component
 - HTTP+SSE transport for MCP communication (HTTP requests + Server-Sent Events)
 - MCP servers as containerized services exposing tools and resources
-- Remote agent execution in separate containers acting as MCP clients
+- Remote agent execution in separate containers acting as MCP clients and MCP servers, depending who is cosuming what.
 - Docker Compose orchestration
 - Suitable for medium-scale deployments and staging environments
 
@@ -121,17 +125,17 @@ Provide developers and organizations with a ready-to-use, modular, and extensibl
 
 ### Option 1: Local Implementation
 **Technologies:**
-- **.NET 8+** for MCP server and C# agents
-- **Python 3.11+** for optional Python agent
+- **C# .NET 8+** in C# for content MCP server, orchestrator agent and summarizer agent.
+- **Python 3.11+** for agent Tagline-Creator.
 - **Semantic Kernel .NET** for AI capabilities
 - **stdio transport** for MCP communication (JSON-RPC 2.0)
 - **Local file system** for document storage
 
 **Components:**
 - MCP Server (C# console application exposing resources and tools)
-- MCP Client/Orchestrator (C# application managing workflow)
-- Summarization Agent (C# with Semantic Kernel, integrated or as MCP server)
-- Analysis Agent (C# with Semantic Kernel, integrated or as MCP server)
+- Orchestrator Agent (C# Semantic Kernel agent managing workflow, with MCP comm.)
+- Summarization Agent (C# with Semantic Kernel, with MCP comm.)
+- Tagline-Creator Agent (C# with Semantic Kernel, with MCP comm.)
 
 **Architecture Diagram:**
 
@@ -145,28 +149,29 @@ Local File/URL → MCP Server ←→ MCP Client/Orchestrator ←→ [Summarizati
 
 ### Option 2: Dockerized Implementation
 **Technologies:**
-- **.NET 8+ Docker images** for C# components
-- **Python 3.11+ Docker images** for Python agents
+- **C# .NET 8+ Docker images** for C# components (content MCP server, orchestrator, summarization agent)
+- **Python 3.11+ Docker images** for Analysis/Tagline-Creator agent
 - **Docker Compose** for orchestration
 - **HTTP+SSE transport** for MCP communication
 - **Shared volumes** for data exchange
 
 **Components:**
-- MCP Server Container (HTTP+SSE, exposing tools and resources)
-- MCP Client/Orchestrator Container (coordinates workflow)
-- Summarization Agent Container (MCP server or client)
-- Analysis Agent Container (MCP server or client)
+- Content Source MCP Server Container (HTTP+SSE, exposing tools and resources)
+- Orchestrator Agent Container (C# Semantic Kernel agent managing workflow, with MCP comm.)
+- Summarization Agent Container (C# with Semantic Kernel, with MCP comm.)
+- Analysis/Tagline-Creator Agent Container (Python, with MCP comm.)
 
 **Communication Flow:**
 ```
-External Input → MCP Server ←→ MCP Client Containers (via HTTP+SSE JSON-RPC)
-                (HTTP+SSE)     (tools/resources)
+External Input → Content Source MCP Server ←→ Orchestrator Agent ←→ [Summarization → Analysis/Tagline-Creator]
+                 (HTTP+SSE, resources/tools)     (HTTP+SSE JSON-RPC)      (containerized agents)
 ```
 
 ### Option 3: Cloud-Native Kubernetes Implementation
 **Technologies:**
 - **Kubernetes 1.25+** for orchestration
-- **.NET Docker images** optimized for K8s
+- **C# .NET Docker images** optimized for K8s (content MCP server, orchestrator, summarization agent)
+- **Python 3.11+ Docker images** for Analysis/Tagline-Creator agent
 - **Kubernetes Services** for MCP server discovery
 - **HTTP+SSE transport** for MCP communication
 - **ConfigMaps** for configuration management
@@ -174,17 +179,19 @@ External Input → MCP Server ←→ MCP Client Containers (via HTTP+SSE JSON-RP
 - **Helm charts** for deployment automation
 
 **Components:**
-- MCP Server Deployment and Service (tools and resources via HTTP+SSE)
-- MCP Client/Orchestrator Deployments
-- Agent Deployments (Summarization, Analysis as MCP servers or clients)
+- Content Source MCP Server Deployment and Service (tools and resources via HTTP+SSE)
+- Orchestrator Agent Deployments (C# Semantic Kernel agent managing workflow)
+- Summarization Agent Deployments (C# with Semantic Kernel, with MCP comm.)
+- Analysis/Tagline-Creator Agent Deployments (Python, with MCP comm.)
 - ConfigMaps for agent and MCP server configuration
 - Services for internal MCP communication
 - Ingress for external access
 
 **Communication Flow:**
 ```
-External → Ingress → MCP Services ←→ Agent Services (via K8s networking + HTTP+SSE)
-                    (tools/resources)  (JSON-RPC 2.0)
+External → Ingress → Content Source MCP Services ←→ Agent Services (via K8s networking + HTTP+SSE)
+                    (tools/resources)                [Orchestrator → Summarization → Analysis/Tagline-Creator]
+                                                    (JSON-RPC 2.0)
 ```
 
 ## Risk Assessment
