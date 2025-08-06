@@ -133,6 +133,10 @@ Provide developers and organizations with a ready-to-use, modular, and extensibl
 - Summarization Agent (C# with Semantic Kernel, integrated or as MCP server)
 - Analysis Agent (C# with Semantic Kernel, integrated or as MCP server)
 
+**Architecture Diagram:**
+
+![Option 1: Simple MCP+SemanticKernel POC Multi-Agent Architecture](images/architecture-option-1-high-level.png)
+
 **Communication Flow:**
 ```
 Local File/URL → MCP Server ←→ MCP Client/Orchestrator ←→ [Summarization → Analysis]
