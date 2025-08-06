@@ -1,0 +1,61 @@
+I want to create a baseline/generic solution for an "Agentic Multi-Agent solution",
+based on MCP and Semantic Kernel, that can be adapted to different use cases. 
+The solution should be modular, extensible, and easy to deploy. 
+The goal is to have a working prototype that demonstrates the core functionalities of MCP, Semantic Kernel 
+and can be used as a starting point for further development.
+
+Functional requirements:
+- The solution should have a Multi-Agent Control Plane (MCP) that can manage multiple agents
+- The MCP should be able to communicate with agents using different communication protocols (e.g., stdio, REST API)
+- The agents should be able to perform tasks using Semantic Kernel
+- The solution should be able to handle different types of agents (e.g., inprocess, remote)
+- The solution should be modular and allow for easy addition of new agents and communication protocols
+
+These should be the initial agents and MCP servers:
+
+1. MCP server as source of a generic document/content to be processed by agents. This document/content
+    can be a local text file for testing or a remote HTML page content to be fetch from a URL.
+2. A workflow of two agents using semantic kernel with a basic prompt:
+   - Agent 1: Summarization agent that summarizes the document/content provided by the MCP server.
+   - Agent 2: Analysis agent that analyzes the summary provided by Agent 1 and provides a compelling motto or tagline
+     based on the summary.
+
+
+Non-functional requirements:
+- The solution should be easy to deploy and run on different environments (e.g., local machine, Docker, Kubernetes)
+- The solution should be well-documented and include examples of how to use it
+
+The solution should have three options or alternatives, sharing the same core functionalities, 
+but differing in the architecture and technologies used.
+
+Option 1: Local and using stdio MCP an inprocess Semantic Kernel agents
+- Simple architecture, easy to set up and run.
+- All components run locally on the same machine.
+- Use stdio for communication between MCP and agents.
+- Use inprocess Semantic Kernel agents for simplicity.
+- Suitable for development, testing, and small-scale use cases.
+
+Option 2: Dockerized and using REST API MCP and remote agents
+- More complex architecture, requires Docker and container orchestration, such as docker-compose.
+- MCP runs in a Docker container and exposes a REST API for communication.
+- Agents run in separate Docker containers and communicate with MCP via REST API.
+- Use Semantic Kernel agents that can run in a containerized environment.
+- Suitable for medium-scale use cases and easier deployment.
+
+Option 3: Cloud-Native and using Kubernetes, REST API MCP and remote agents
+- Most complex architecture, designed for scalability and resilience.
+- MCP runs in a Kubernetes cluster and exposes a REST API for communication.
+- Agents run as separate pods in the Kubernetes cluster and communicate with MCP via REST API.
+- Use Semantic Kernel agents that can run in a containerized environment.
+- Suitable for large-scale use cases and production deployments.
+
+
+Goal and value proposition of the project:
+
+The goal is not to create a full-fledged product, but rather a baseline solution that can be adapted and extended for different use cases.
+The value proposition is to provide a starting point for developers and organizations looking to build multi-agent systems using MCP and Semantic Kernel,
+with a focus on modularity, extensibility, and ease of deployment, but most of all, to demonstrate the evolution of the architecture and technologies used,
+from a simple local setup, going to a dockerized version up to to a more complex cloud-native Kubernetes-based solution, showcasing the benefits and trade-offs of each option.
+
+This solution should be a reference solution and architecture for developers and organizations looking to build multi-agent systems using MCP and Semantic Kernel.
+Therefore, the architecture and code should be clean, well-structured, and follow best practices.
