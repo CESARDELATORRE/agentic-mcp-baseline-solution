@@ -6,6 +6,7 @@
 - **`project-idea.md`**: Comprehensive project specification document containing summary, requirements, architecture options, technical specifications, and implementation roadmap for the agentic multi-agent baseline solution
 - **`basic-requirements-and-goals.txt`**: Original project requirements and goals document outlining the three architecture options and core functionalities
 - **`research.md`**: Future research items and advanced features to be considered in later versions, including monitoring, security, resilience patterns, and advanced architecture considerations
+- **`metrics-frameworks.md`**: Comprehensive analysis of developer productivity metrics frameworks including DORA, SPACE, and other popular KPIs, covering background, implementation practices, case studies, and recommendations for measuring both productivity and code quality
 
 ### Configuration Files
 - **`.github/instructions/csharp.instructions.md`**: C# coding standards and documentation requirements for the project
